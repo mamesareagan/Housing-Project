@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Building Page</title>
+</head>
+<body>
+    <h1>Dynamic Data from Database</h1>
+        {% for obj in buildings %}
+            <h4>Owner<p style="color: darkblue;">{{ obj.owner }}</p></h4>
+        {% endfor %}
+    </ul>
+</body>
+</html>

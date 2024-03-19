@@ -6,14 +6,14 @@ from Housing.validators import validate_available_houses
 class Building(models.Model):
     owner = models.CharField(max_length=255, null=False, blank=False)
     location = models.CharField(max_length=255, null=False, blank=False)
-    no_of_houses = models.PositiveIntegerField()
+    total_number_of_houses = models.PositiveIntegerField()
     available_houses = models.PositiveIntegerField()
 
     def __str__(self):
-        return f("Building at {self.location},owner {self.owner} with {self.available_houses} houses available")
+        return f"Building at {self.location},owner {self.owner} with {self.available_houses} houses available"
     
     def clean(self):
-        validate_available_houses(self.no_of_houses, self.available_houses)
+        validate_available_houses(self.total_number_of_houses, self.available_houses)
 
     def save(self, *args, **kwargs):
         self.clean()
