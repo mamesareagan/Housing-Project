@@ -1,0 +1,48 @@
+<!-- update_building.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Building</title>
+    <style>
+        .error {
+            color: red;
+        }
+        .error-input {
+            border: 1px solid red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Update Building Info</h1>
+    <form id="update-building-form" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div id="total-number-error" class="error"></div>
+        <button type="submit">Update Building</button>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('update-building-form');
+            const totalNumberInput = form.querySelector('#id_total_number_of_houses');
+            const availableInput = form.querySelector('#id_available_houses');
+            const errorDiv = document.getElementById('total-number-error');
+
+            totalNumberInput.addEventListener('input', function () {
+                const totalNumber = parseInt(this.value);
+                const available = parseInt(availableInput.value);
+                
+                if (totalNumber > available) {
+                    errorDiv.textContent = 'Number of houses cannot exceed available houses';
+                    totalNumberInput.classList.add('error-input');
+                } else {
+                    errorDiv.textContent = '';
+                    totalNumberInput.classList.remove('error-input');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
