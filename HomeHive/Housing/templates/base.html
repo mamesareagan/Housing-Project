@@ -1,0 +1,27 @@
+<!-- base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Building Management</title>
+    <link rel="stylesheet" href="static/base.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="dropdown">
+            <button class="dropbtn">Buildings</button>
+            <div class="dropdown-content">
+                {% for building in buildings %}
+                    <a href="{% url 'building-details' building.pk %}">{{ building.building_name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+    </nav>
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <script src="static/base.js"></script>
+</body>
+</html>

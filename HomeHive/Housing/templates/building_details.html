@@ -1,13 +1,76 @@
+<!-- building_details.html -->
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Building Page</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ building.building_name }} Details</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .building-info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .building-info p {
+            margin: 10px 0;
+        }
+        .amenities {
+            margin-top: 20px;
+        }
+        .amenities h2 {
+            margin-bottom: 10px;
+        }
+        .amenities ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .amenities li {
+            margin-bottom: 5px;
+        }
+        .update-button {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Dynamic Data from Database</h1>
-        {% for obj in buildings %}
-            <h4>Owner<p style="color: darkblue;">{{ obj.owner }}</p></h4>
-        {% endfor %}
-    </ul>
+    <div class="container">
+        <h1>{{ building.building_name }} Details</h1>
+        <div class="building-info">
+            <p><strong>Owner:</strong> {{ building.owner }}</p>
+            <p><strong>Location:</strong> {{ building.location }}</p>
+            <p><strong>Total Number of Houses:</strong> {{ building.total_number_of_houses }}</p>
+            <p><strong>Available Houses:</strong> {{ building.available_houses }}</p>
+        </div>
+        <div class="amenities">
+            <h2>Amenities</h2>
+            <ul>
+                {% for amenity in building.amenities.all %}
+                    <li>{{ amenity.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        <div class="update-button">
+            <a href="{% url 'building-update' building.id %}">Update Building</a>
+        </div>
+    </div>
 </body>
 </html>
