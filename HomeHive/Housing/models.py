@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import RegexValidator
 
 from Housing.validators import validate_available_houses
 
@@ -21,15 +22,6 @@ class Building(models.Model):
         self.clean()
         super(Building, self).save(*args, **kwargs)
 
-# class House(models.Model):
-#     building = models.ForeignKey(Building, on_delete=models.CASCADE)
-#     number_of_rooms = models.PositiveIntegerField()
-#     # amenities = models.ManyToManyField('Amenity')
-#     rent = models.DecimalField(max_digits=10, decimal_places=2)
-#     is_available = models.BooleanField(default=True)
-
-#     def __str__(self):
-#         return f"House in {self.building} with {self.number_of_rooms} rooms"
 
 class Amenity(models.Model):
     name = models.CharField(max_length=100)
@@ -37,12 +29,19 @@ class Amenity(models.Model):
     def __str__(self):
         return self.name
 
-# class Tenant(models.Model):
-#     name = models.CharField(max_length=255)
-#     phone_number = models.CharField(max_length=20)
+  
+class Tenant(models.Model):
+    name = models.CharField(max_length=255)
+    phone_number = models.CharField(
+        max_length=20,
+        validators=[RegexValidator(regex=r'\d{10}', message='Invalid phone number format (XXX-XXX-XXXX)')],
+    )
+    building = models.ForeignKey('Building', on_delete=models.CASCADE, related_name='tenants', null=True, blank=True)
+    number_of_rooms = models.PositiveIntegerField(default=1, null=False, blank=False)
+    number_of_people = models.PositiveIntegerField(default=1,null=False, blank=False)
 
-#     def __str__(self):
-#         return self.name
+    def __str__(self):
+        return self.name
 
 # class Caretaker(models.Model):
 #     name = models.CharField(max_length=255)

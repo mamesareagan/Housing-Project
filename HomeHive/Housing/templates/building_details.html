@@ -71,6 +71,20 @@
         <div class="update-button">
             <a href="{% url 'building-update' building.id %}">Update Building</a>
         </div>
+
+        <div class="add-tenant-button">
+            <a href="{% url 'add-tenant' building_id=building.id %}">Add Tenant</a>
+        </div>
+
+        <div class="tenants">
+            <h2>Tenants in this Building</h2>
+            <ul>
+                {% for tenant in building.tenants.all %}
+                    <li>{{ tenant.name }} - {{ tenant.phone_number }}</li>
+                {% endfor %}
+            </ul>
+        </div>
     </div>
+
 </body>
 </html>

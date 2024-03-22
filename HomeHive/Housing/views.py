@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.views import View
 from django.views.generic.edit import FormView
 from django.urls import reverse, reverse_lazy
-from Housing.forms import BuildingForm
+from Housing.forms import BuildingForm, TenantForm
 from django.db import transaction
 
 from Housing.models import Amenity, Building
@@ -97,3 +97,21 @@ class BuildingFormView(View):
                 return redirect('building-view')
         else:
             return render(request, 'building_form.html', {'form': form})
+        
+class AddTenantToBuildingView(View):
+    template_name = 'add_tenant.html'
+
+    def get(self, request, building_id):
+        building = get_object_or_404(Building, pk=building_id)
+        form = TenantForm()
+        return render(request, self.template_name, {'form': form, 'building': building})
+
+    def post(self, request, building_id):
+        building = get_object_or_404(Building, pk=building_id)
+        form = TenantForm(request.POST)
+        if form.is_valid():
+            tenant = form.save(commit=False)
+            tenant.building = building
+            tenant.save()
+            return redirect('building-details', building_id=building_id)
+        return render(request, self.template_name, {'form': form, 'building': building})
