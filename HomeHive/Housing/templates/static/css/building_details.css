@@ -1,0 +1,60 @@
+body {
+    font-family: Arial, sans-serif;
+        
+.amenities li {
+        margin-bottom: 5px;
+    }
+.update-button {
+            margin-top: 20px;
+        }    margin: 0;
+            padding: 0;
+            background-color: #f3f3f3;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .building-info {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .building-info p {
+            margin: 10px 0;
+        }
+        .amenities {
+            margin-top: 20px;
+        }
+        .amenities h2 {
+            margin-bottom: 10px;
+        }
+        .amenities ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .confirmation-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+        .confirmation-dialog h2 {
+            margin-top: 0;
+        }
+        .confirmation-dialog-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }

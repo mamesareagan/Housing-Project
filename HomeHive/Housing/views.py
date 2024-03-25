@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponse
 from django.views import View
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, UpdateView
 from django.urls import reverse, reverse_lazy
-from Housing.forms import BuildingForm, TenantForm
+from Housing.forms import BuildingForm, CaretakerForm, TenantForm
 from django.db import transaction
 
-from Housing.models import Amenity, Building
+from Housing.models import Amenity, Building, Caretaker, Tenant
 
 
 class BuildingClassView(View):
@@ -54,19 +54,6 @@ class UpdateBuildingView(View):
             return redirect(reverse('building-details', kwargs={'building_id': updated_building.pk}))
         return render(request, self.template_name, {'form': form, 'building': building})
 
-
-# class BuildingFormView(FormView):
-#     template_name = 'building_form.html'
-#     form_class = BuildingForm
-#     success_url = reverse_lazy('building-view')  # Use the correct URL pattern name
-
-#     def form_valid(self, form):
-#         # Process the form data and create a model instance
-#         building = form.save(commit=False)
-#         # Here, you can do any additional processing of the form data before saving
-#         # For example, you can set values for fields not included in the form
-#         building.save()
-#         return super().form_valid(form)
 class BuildingFormView(View):
     def get(self, request):
         form = BuildingForm()
@@ -98,6 +85,14 @@ class BuildingFormView(View):
         else:
             return render(request, 'building_form.html', {'form': form})
         
+class DeleteBuildingView(View):
+    def post(self, request, pk):
+        building = get_object_or_404(Building, pk=pk)
+
+        building.delete()
+        
+        return redirect('building-view')  
+        
 class AddTenantToBuildingView(View):
     template_name = 'add_tenant.html'
 
@@ -115,3 +110,53 @@ class AddTenantToBuildingView(View):
             tenant.save()
             return redirect('building-details', building_id=building_id)
         return render(request, self.template_name, {'form': form, 'building': building})
+    
+   
+class AddCaretakerToBuildingView(View):
+    template_name = 'add_Caretaker.html'
+
+    def get(self, request, building_id):
+        building = get_object_or_404(Building, pk=building_id)
+        form = CaretakerForm()
+        return render(request, self.template_name, {'form': form, 'building': building})
+
+    def post(self, request, building_id):
+        building = get_object_or_404(Building, pk=building_id)
+        form = CaretakerForm(request.POST)
+        if form.is_valid():
+            Caretaker = form.save(commit=False)
+            Caretaker.building = building
+            Caretaker.save()
+            return redirect('building-details', building_id=building_id)
+        return render(request, self.template_name, {'form': form, 'building': building})
+    
+class UpdateCaretakerView(View):
+    template_name = 'update_caretaker.html'
+
+    def get(self, request, pk):
+        building = Building.objects.prefetch_related('caretaker').get(pk=pk)
+        form = CaretakerForm(instance=building)
+        return render(request, self.template_name, {'form': form, 'building': building})
+
+    def post(self, request, pk):
+        # Retrieve the caretaker instance to update
+        caretaker = Caretaker.objects.get(pk=pk)
+        
+        if request.method == 'POST':
+            # Bind the form data to this caretaker instance
+            form = CaretakerForm(request.POST, instance=caretaker)
+            if form.is_valid():
+                # Save the updated caretaker
+                form.save()
+                
+                # Get the building associated with the caretaker
+                building = caretaker.building
+                
+                # Redirect to the building details page
+                return redirect(reverse('building-details', kwargs={'building_id': building.pk}))
+        else:
+            # Create the form instance with the caretaker data filled in
+            form = CaretakerForm(instance=caretaker)
+        
+        # If form is not valid or it's a GET request, render the form again with the errors
+        return render(request, self.template_name, {'form': form, 'building': caretaker.building})

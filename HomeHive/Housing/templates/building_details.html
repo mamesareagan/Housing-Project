@@ -8,7 +8,14 @@
     <title>{{ building.building_name }} Details</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
+                font-family: Arial, sans-serif;
+        }
+            
+        .amenities li {
+            margin-bottom: 5px;
+        }
+        .update-button {
+            margin-top: 20px;
             margin: 0;
             padding: 0;
             background-color: #f3f3f3;
@@ -43,13 +50,26 @@
             list-style-type: none;
             padding: 0;
         }
-        .amenities li {
-            margin-bottom: 5px;
+        .confirmation-dialog {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
         }
-        .update-button {
+        .confirmation-dialog h2 {
+            margin-top: 0;
+        }
+        .confirmation-dialog-buttons {
+            text-align: center;
             margin-top: 20px;
         }
     </style>
+    
 </head>
 <body>
     <div class="container">
@@ -59,6 +79,22 @@
             <p><strong>Location:</strong> {{ building.location }}</p>
             <p><strong>Total Number of Houses:</strong> {{ building.total_number_of_houses }}</p>
             <p><strong>Available Houses:</strong> {{ building.available_houses }}</p>
+            <h2>Caretakers:</h2>
+            <form id="delete-building-form" action="{% url 'delete-building' pk=building.pk %}" method="post" style="display: inline;">
+                {% csrf_token %}
+                <button id="delete-building-button" type="button">Delete Building</button>
+            </form>
+            <!-- List of Caretakers -->
+            <ul>
+                {% for caretaker in building.caretaker.all %}
+                    <li>
+                        {{ caretaker.name }} - {{ caretaker.phone_number }}
+                        <form action="{% url 'update-caretaker' pk=caretaker.pk %}" method="get" style="display:inline;">
+                            <button type="submit">Update</button>
+                        </form>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
         <div class="amenities">
             <h2>Amenities</h2>
@@ -76,6 +112,10 @@
             <a href="{% url 'add-tenant' building_id=building.id %}">Add Tenant</a>
         </div>
 
+        <div class="add-tenant-button">
+            <a href="{% url 'add-caretaker' building_id=building.id %}">Add Caretaker</a>
+        </div>
+
         <div class="tenants">
             <h2>Tenants in this Building</h2>
             <ul>
@@ -85,6 +125,44 @@
             </ul>
         </div>
     </div>
+    <div id="confirmation-dialog" class="confirmation-dialog">
+        <h2>Confirm Deletion</h2>
+        <p>Are you sure you want to delete this building?</p>
+        <div class="confirmation-dialog-buttons">
+            <button id="confirm-delete-button">Delete</button>
+            <button id="cancel-delete-button">Cancel</button>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+    // Get the delete building button
+    const deleteBuildingButton = document.getElementById('delete-building-button');
 
+    // Get the confirmation dialog
+    const confirmationDialog = document.getElementById('confirmation-dialog');
+
+    // Get the confirm delete button from the confirmation dialog
+    const confirmDeleteButton = document.getElementById('confirm-delete-button');
+
+    // Get the cancel delete button from the confirmation dialog
+    const cancelDeleteButton = document.getElementById('cancel-delete-button');
+
+    // Event listener for showing the confirmation dialog when delete button is clicked
+    deleteBuildingButton.addEventListener('click', function() {
+        confirmationDialog.style.display = 'block';
+    });
+
+    // Event listener for hiding the confirmation dialog when cancel delete button is clicked
+    cancelDeleteButton.addEventListener('click', function() {
+        confirmationDialog.style.display = 'none';
+    });
+
+    // Event listener for handling the delete action when confirm delete button is clicked
+    confirmDeleteButton.addEventListener('click', function() {
+        // Submit the delete building form
+        document.getElementById('delete-building-form').submit();
+    });
+});
+    </script>
 </body>
 </html>
