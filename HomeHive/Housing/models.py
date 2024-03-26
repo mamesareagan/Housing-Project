@@ -32,7 +32,8 @@ class Amenity(models.Model):
 
   
 class Tenant(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=20)
+    house_number = models.CharField(max_length=10, default='1')
     phone_number = models.CharField(
         max_length=20,
         validators=[RegexValidator(regex=r'\d{10}', message='Invalid phone number format (XXX-XXX-XXXX)')],

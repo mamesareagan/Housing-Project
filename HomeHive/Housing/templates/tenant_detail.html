@@ -1,0 +1,45 @@
+<!-- tenant_detail.html -->
+
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <h2 class="mb-4">Tenant Details</h2>
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">{{ tenant.name }}</h5>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p class="card-text">House Number: {{ tenant.house_number }}</p>
+                            <p class="card-text">Phone Number: {{ tenant.phone_number }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <p class="card-text">Number of Rooms: {{ tenant.number_of_rooms }}</p>
+                            <p class="card-text">Number of People: {{ tenant.number_of_people }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <!-- Add more details as needed -->
+                    <p class="card-text">Lease Start Date: {{ tenant.lease_start_date }}</p>
+                    <p class="card-text">Lease End Date: {{ tenant.lease_end_date }}</p>
+                    <!-- You can add more details here -->
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <!-- Add additional details or actions related to the tenant -->
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Actions</h5>
+                    <a href="{% url 'update-tenant' tenant.id %}" class="btn btn-primary btn-block mb-2">Edit Tenant</a>
+                    <a href="{% url 'tenant-delete' tenant.id %}" class="btn btn-danger btn-block">Delete Tenant</a>
+                </div>
+            </div>
+            <!-- You can add more cards or components here -->
+        </div>
+    </div>
+</div>
+{% endblock %}

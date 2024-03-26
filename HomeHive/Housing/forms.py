@@ -14,7 +14,7 @@ class BuildingForm(forms.ModelForm):
 class TenantForm(forms.ModelForm):
     class Meta:
         model = Tenant
-        fields = ['name', 'phone_number', 'number_of_rooms', 'number_of_people']
+        fields = ['name', 'phone_number','house_number', 'number_of_rooms', 'number_of_people']
 
 class CaretakerForm(forms.ModelForm):
     class Meta:
