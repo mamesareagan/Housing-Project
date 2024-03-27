@@ -43,6 +43,13 @@ class Tenant(models.Model):
 
     def __str__(self):
         return self.name
+    
+class TotalTenants(models.Model):
+    building = models.OneToOneField(Building, on_delete=models.CASCADE)
+    total_count = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"Total Tenants for {self.building.building_name} = {self.total_count}"
 
 class Caretaker(models.Model):
     name = models.CharField(max_length=255, null=False, blank=False, default='Nill')

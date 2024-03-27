@@ -98,14 +98,20 @@ class BuildingFormView(View):
                 return redirect('building-view')
         else:
             return render(request, 'building_form.html', {'form': form})
-        
+
 class DeleteBuildingView(View):
     def post(self, request, pk):
         building = get_object_or_404(Building, pk=pk)
 
-        building.delete()
-        
-        return redirect('building-view')  
+        # Use a transaction to ensure atomicity
+        with transaction.atomic():
+            # Delete associated amenities
+            building.amenities.clear()
+            # Delete the building
+            building.delete()
+
+        return redirect('building-view')
+
     
 class TenantDetailView(View):
     template_name = 'tenant_detail.html'
