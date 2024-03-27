@@ -15,13 +15,12 @@ class Building(models.Model):
 
     def __str__(self):
         return f"Building at {self.location},owner {self.owner} with {self.available_houses} houses available"
-    
-    def clean(self):
-        validate_available_houses(self.total_number_of_houses, self.available_houses)
 
     def save(self, *args, **kwargs):
-        self.clean()
-        super(Building, self).save(*args, **kwargs)
+        if not self.pk:  # If the building is being created (not being updated)
+            self.available_houses = self.total_number_of_houses  # Set available_houses initially equal to total_number_of_houses
+        super(Building, self).save(*args, **kwargs)  
+ 
 
 
 class Amenity(models.Model):

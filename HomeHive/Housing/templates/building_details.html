@@ -144,7 +144,8 @@
         </div>
         <div class="mt-4">
             <a href="{% url 'building-update' building.id %}" class="btn btn-primary me-3">Update Building</a>
-            <a href="{% url 'add-tenant' building_id=building.id %}" class="btn btn-success me-3">Add Tenant</a>
+            <a href="{% url 'add-tenant' building_id=building.id %}" class="btn btn-success me-3 {% if building.available_houses == 0 %}disabled{% endif %}">Add Tenant</a>
+
             <a href="{% url 'add-caretaker' building_id=building.id %}" class="btn btn-success">Add Caretaker</a>
             <button id="delete-building-button" class="btn btn-danger ms-3" data-bs-toggle="modal"
                 data-bs-target="#confirmationDialog">Delete Building</button>

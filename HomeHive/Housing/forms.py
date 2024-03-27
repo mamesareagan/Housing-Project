@@ -9,7 +9,7 @@ class BuildingForm(forms.ModelForm):
 
     class Meta:
         model = Building
-        fields = ('building_name', 'owner', 'location', 'total_number_of_houses', 'available_houses', 'amenities')
+        fields = ('building_name', 'owner', 'location', 'total_number_of_houses', 'amenities')
 
 class TenantForm(forms.ModelForm):
     class Meta:
