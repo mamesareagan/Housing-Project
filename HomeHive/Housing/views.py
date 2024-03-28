@@ -1,12 +1,12 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.http import HttpResponse
 from django.views import View
-from django.views.generic.edit import FormView
+from django.views.generic import DetailView
 from django.urls import reverse, reverse_lazy
-from Housing.forms import BuildingForm
+from Housing.forms import BuildingForm, CaretakerForm, TenantForm
 from django.db import transaction
 
-from Housing.models import Amenity, Building
+from Housing.models import Amenity, Building, Caretaker, Tenant
 
 
 class BuildingClassView(View):
@@ -28,45 +28,46 @@ class UpdateBuildingView(View):
 
     def get(self, request, pk):
         building = Building.objects.prefetch_related('amenities').get(pk=pk)
-        form = BuildingForm(instance=building)
+        available_amenities = building.amenities.all()  # Access prefetched amenities
+
+        # Pass the initial data containing the IDs of available amenities
+        initial_data = {'amenities': available_amenities.values_list('id', flat=True)}
+
+        form = BuildingForm(instance=building, initial=initial_data)
+
         return render(request, self.template_name, {'form': form, 'building': building})
 
+
+
     def post(self, request, pk):
-        building = Building.objects.get(pk=pk)
+        building = get_object_or_404(Building, pk=pk)
         form = BuildingForm(request.POST, instance=building)
+
+        # Fetch all available amenities associated with the building
+        available_amenities = building.amenities.all()
+
         if form.is_valid():
             updated_building = form.save(commit=False)
-            # Get the list of selected amenity names from the form data
-            selected_amenity_names = request.POST.getlist('amenities')
-            
             # Clear existing amenities of the building
             updated_building.amenities.clear()
-            
+
+            # Get the list of selected amenity names from the form data
+            selected_amenity_names = request.POST.getlist('amenities')
+
             # Create or get Amenity objects based on selected names
             for amenity_name in selected_amenity_names:
                 amenity, created = Amenity.objects.get_or_create(name=amenity_name)
                 updated_building.amenities.add(amenity)
-                
+
             # Save the updated building
             updated_building.save()
-            
+
             # Redirect to the building details page of the updated building
             return redirect(reverse('building-details', kwargs={'building_id': updated_building.pk}))
-        return render(request, self.template_name, {'form': form, 'building': building})
+
+        return render(request, self.template_name, {'form': form, 'building': building, 'available_amenities': available_amenities})
 
 
-# class BuildingFormView(FormView):
-#     template_name = 'building_form.html'
-#     form_class = BuildingForm
-#     success_url = reverse_lazy('building-view')  # Use the correct URL pattern name
-
-#     def form_valid(self, form):
-#         # Process the form data and create a model instance
-#         building = form.save(commit=False)
-#         # Here, you can do any additional processing of the form data before saving
-#         # For example, you can set values for fields not included in the form
-#         building.save()
-#         return super().form_valid(form)
 class BuildingFormView(View):
     def get(self, request):
         form = BuildingForm()
@@ -97,3 +98,119 @@ class BuildingFormView(View):
                 return redirect('building-view')
         else:
             return render(request, 'building_form.html', {'form': form})
+
+class DeleteBuildingView(View):
+    def post(self, request, pk):
+        building = get_object_or_404(Building, pk=pk)
+
+        # Use a transaction to ensure atomicity
+        with transaction.atomic():
+            # Delete associated amenities
+            building.amenities.clear()
+            # Delete the building
+            building.delete()
+
+        return redirect('building-view')
+
+    
+class TenantDetailView(View):
+    template_name = 'tenant_detail.html'
+
+    def get(self, request, tenant_id):
+        tenant = get_object_or_404(Tenant, pk=tenant_id)
+        buildings = Building.objects.prefetch_related('amenities').all()
+        return render(request, self.template_name, {'tenant': tenant, 'buildings': buildings})
+
+class UpdateTenantView(View):
+    template_name = 'update_tenant.html'
+    buildings = Building.objects.prefetch_related('amenities').all()
+    def get(self, request, tenant_id):
+        tenant = get_object_or_404(Tenant, pk=tenant_id)
+        form = TenantForm(instance=tenant)
+        return render(request, self.template_name, {'form': form, 'tenant_id': tenant_id})
+
+    def post(self, request, tenant_id):
+        tenant = get_object_or_404(Tenant, pk=tenant_id)
+        form = TenantForm(request.POST, instance=tenant)
+        if form.is_valid():
+            form.save()
+            return redirect('tenant-detail', tenant_id=tenant_id)
+        return render(request, self.template_name, {'form': form, 'tenant_id': tenant_id})
+
+
+class TenantDeleteView(View):
+    def get(self, request, tenant_id):
+        tenant = get_object_or_404(Tenant, pk=tenant_id)
+        building_id = tenant.building.id
+        tenant.delete()
+        return redirect('building-details', building_id=building_id)
+
+
+class AddTenantToBuildingView(View):
+    template_name = 'add_tenant.html'
+
+    def get(self, request, building_id):
+        building = get_object_or_404(Building, pk=building_id)
+        form = TenantForm()
+        return render(request, self.template_name, {'form': form, 'building': building})
+
+    def post(self, request, building_id):
+        building = get_object_or_404(Building, pk=building_id)
+        form = TenantForm(request.POST)
+        if form.is_valid():
+            house_number = form.cleaned_data['house_number']
+            if Tenant.objects.filter(building=building, house_number=house_number).exists():
+                form.add_error('house_number', f'House number {house_number} is occupied.')
+                return render(request, self.template_name, {'form': form, 'building': building})
+            else:
+                tenant = form.save(commit=False)
+                tenant.building = building
+                tenant.save()
+                return redirect('building-details', building_id=building_id)
+        return render(request, self.template_name, {'form': form, 'building': building})
+    
+class AddCaretakerToBuildingView(View):
+    template_name = 'add_Caretaker.html'
+
+    def get(self, request, building_id):
+        building = get_object_or_404(Building, pk=building_id)
+        form = CaretakerForm()
+        return render(request, self.template_name, {'form': form, 'building': building})
+
+    def post(self, request, building_id):
+        building = get_object_or_404(Building, pk=building_id)
+        form = CaretakerForm(request.POST)
+        if form.is_valid():
+            Caretaker = form.save(commit=False)
+            Caretaker.building = building
+            Caretaker.save()
+            return redirect('building-details', building_id=building_id)
+        return render(request, self.template_name, {'form': form, 'building': building})
+
+class UpdateCaretakerView(View):
+    template_name = 'update_caretaker.html'
+
+    def get(self, request, pk):
+        caretaker = get_object_or_404(Caretaker, pk=pk)
+        building = caretaker.building
+        form = CaretakerForm(instance=caretaker)
+        return render(request, self.template_name, {'form': form, 'building': building, 'caretaker': caretaker})
+
+    def post(self, request, pk):
+        caretaker = get_object_or_404(Caretaker, pk=pk)
+        building = caretaker.building
+
+        form = CaretakerForm(request.POST, instance=caretaker)
+        if form.is_valid():
+            form.save()
+            return redirect(reverse('building-details', kwargs={'building_id': building.pk}))
+
+        return render(request, self.template_name, {'form': form, 'building': building, 'caretaker': caretaker})
+
+class DeleteCaretakerView(View):
+    def post(self, request, pk):
+        caretaker = get_object_or_404(Caretaker, pk=pk)
+        building = caretaker.building
+
+        caretaker.delete()
+        return redirect('building-details', building_id=building.pk)
