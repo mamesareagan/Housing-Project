@@ -1,5 +1,6 @@
 from django.urls import path
 
+from Housing import views
 from Housing.views import AddCaretakerToBuildingView, AddTenantToBuildingView, BuildingClassView, BuildingDetailView, BuildingFormView, DeleteBuildingView, DeleteCaretakerView, TenantDeleteView, TenantDetailView,UpdateBuildingView, UpdateCaretakerView, UpdateTenantView
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('tenant/<int:tenant_id>/', TenantDetailView.as_view(), name='tenant-detail'),
     path('tenant/delete/<int:tenant_id>/', TenantDeleteView.as_view(), name='tenant-delete'),
     path('update-tenant/<int:tenant_id>/', UpdateTenantView.as_view(), name='update-tenant'),
+    path('api/tenants/', views.get_tenant_id, name='get-tenant-id'),
 ]

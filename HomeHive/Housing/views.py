@@ -1,16 +1,24 @@
 from django.shortcuts import get_object_or_404, redirect, render
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.views.generic import DetailView
 from django.urls import reverse, reverse_lazy
 from Housing.forms import BuildingForm, CaretakerForm, TenantForm
 from django.db import transaction
 
-from Housing.models import Amenity, Building, Caretaker, Tenant
+from Housing.models import Amenity, Building, Caretaker, Tenant, TotalTenants
 
+
+def get_tenant_id(request):
+    house_number = request.GET.get('house_number')
+    try:
+        tenant = Tenant.objects.get(house_number=house_number)
+        return JsonResponse({'tenant_id': tenant.id})
+    except Tenant.DoesNotExist:
+        return JsonResponse({'error': 'Tenant not found'}, status=404)
 
 class BuildingClassView(View):
-    template_name = 'base.html'
+    template_name = 'main.html'
 
     def get(self, request, *args, **kwargs):
         buildings = Building.objects.prefetch_related('amenities').all()
@@ -21,7 +29,13 @@ class BuildingDetailView(View):
 
     def get(self, request, building_id):
         building = get_object_or_404(Building, pk=building_id)
-        return render(request, self.template_name, {'building': building})
+        
+        # Fetch TotalTenants instance associated with the building
+        total_tenants = TotalTenants.objects.get(building=building)
+        buildings = Building.objects.prefetch_related('amenities').all()
+        # Pass building and total_tenants to the template
+        return render(request, self.template_name, {'building': building, 'total_tenants': total_tenants, 'buildings': buildings})
+
 
 class UpdateBuildingView(View):
     template_name = 'update_building.html'
@@ -34,8 +48,8 @@ class UpdateBuildingView(View):
         initial_data = {'amenities': available_amenities.values_list('id', flat=True)}
 
         form = BuildingForm(instance=building, initial=initial_data)
-
-        return render(request, self.template_name, {'form': form, 'building': building})
+        buildings = Building.objects.prefetch_related('amenities').all()
+        return render(request, self.template_name, {'form': form, 'building': building, 'buildings': buildings})
 
 
 
@@ -71,7 +85,8 @@ class UpdateBuildingView(View):
 class BuildingFormView(View):
     def get(self, request):
         form = BuildingForm()
-        return render(request, 'building_form.html', {'form': form})
+        buildings = Building.objects.prefetch_related('amenities').all()
+        return render(request, 'building_form.html', {'form': form, 'buildings': buildings})
 
     def post(self, request):
         form = BuildingForm(request.POST)
@@ -105,7 +120,7 @@ class DeleteBuildingView(View):
 
         # Use a transaction to ensure atomicity
         with transaction.atomic():
-            # Delete associated amenities
+            # Delete the associated amenities
             building.amenities.clear()
             # Delete the building
             building.delete()
@@ -123,11 +138,12 @@ class TenantDetailView(View):
 
 class UpdateTenantView(View):
     template_name = 'update_tenant.html'
-    buildings = Building.objects.prefetch_related('amenities').all()
+    
     def get(self, request, tenant_id):
         tenant = get_object_or_404(Tenant, pk=tenant_id)
         form = TenantForm(instance=tenant)
-        return render(request, self.template_name, {'form': form, 'tenant_id': tenant_id})
+        buildings = Building.objects.prefetch_related('amenities').all()
+        return render(request, self.template_name, {'form': form, 'tenant_id': tenant_id, 'buildings': buildings})
 
     def post(self, request, tenant_id):
         tenant = get_object_or_404(Tenant, pk=tenant_id)
@@ -152,7 +168,8 @@ class AddTenantToBuildingView(View):
     def get(self, request, building_id):
         building = get_object_or_404(Building, pk=building_id)
         form = TenantForm()
-        return render(request, self.template_name, {'form': form, 'building': building})
+        buildings = Building.objects.prefetch_related('amenities').all()
+        return render(request, self.template_name, {'form': form, 'building': building, 'buildings': buildings})
 
     def post(self, request, building_id):
         building = get_object_or_404(Building, pk=building_id)
@@ -175,7 +192,8 @@ class AddCaretakerToBuildingView(View):
     def get(self, request, building_id):
         building = get_object_or_404(Building, pk=building_id)
         form = CaretakerForm()
-        return render(request, self.template_name, {'form': form, 'building': building})
+        buildings = Building.objects.prefetch_related('amenities').all()
+        return render(request, self.template_name, {'form': form, 'building': building, 'buildings': buildings})
 
     def post(self, request, building_id):
         building = get_object_or_404(Building, pk=building_id)
@@ -194,7 +212,8 @@ class UpdateCaretakerView(View):
         caretaker = get_object_or_404(Caretaker, pk=pk)
         building = caretaker.building
         form = CaretakerForm(instance=caretaker)
-        return render(request, self.template_name, {'form': form, 'building': building, 'caretaker': caretaker})
+        buildings = Building.objects.prefetch_related('amenities').all()
+        return render(request, self.template_name, {'form': form, 'building': building, 'caretaker': caretaker, 'buildings': buildings})
 
     def post(self, request, pk):
         caretaker = get_object_or_404(Caretaker, pk=pk)

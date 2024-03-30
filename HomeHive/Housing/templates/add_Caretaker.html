@@ -1,17 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Caretaker</title>
-</head>
-<body>
-    <h1>Add Caretaker to Building</h1>
-    <p>Building: {{ building }}</p>
-    <form method="post">
+{% extends 'base.html' %}
+
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-4">Add Caretaker to Building</h1>
+    <p class="text-muted">Building: {{ building }}</p>
+    <form method="post" class="mt-4">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit</button>
+        <div class="mb-3">
+            <label for="id_name" class="form-label">Name</label>
+            {{ form.name }}
+        </div>
+        <div class="mb-3">
+            <label for="id_phone_number" class="form-label">Phone Number</label>
+            {{ form.phone_number }}
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
     </form>
-</body>
-</html>
+</div>
+{% endblock %}

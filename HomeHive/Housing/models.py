@@ -1,6 +1,6 @@
 from email.policy import default
 from django.db import models
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 
 from Housing.validators import validate_available_houses
 
@@ -9,7 +9,7 @@ class Building(models.Model):
     building_name = models.CharField(max_length=255, null=False, blank=False, default= 'HomeHive')
     owner = models.CharField(max_length=255, null=False, blank=False)
     location = models.CharField(max_length=255, null=False, blank=False)
-    total_number_of_houses = models.PositiveIntegerField()
+    total_number_of_houses = models.PositiveIntegerField(validators=[MinValueValidator(1)])
     available_houses = models.PositiveIntegerField()
     amenities = models.ManyToManyField('Amenity', blank=True)
 

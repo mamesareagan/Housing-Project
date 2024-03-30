@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,53 +10,83 @@
     <style>
         /* Custom styles */
         body {
-            background-color: #7b858c11;
-            color: #90850b;
+            background-color: #d1dcec;
+            /* Light gray background */
+            color: #343a40;
+            /* Dark text color */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Font family */
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            margin: 0;
         }
+
         .navbar {
             background-color: #000;
         }
+
         .navbar-brand {
             color: #ffc107; /* Yellow */
         }
+
         .navbar-toggler-icon {
             background-color: #ffc107; /* Yellow */
         }
+
         .navbar-nav .nav-link {
             color: #fff;
         }
+
         .dropdown-menu {
             background-color: #000;
         }
+
         .dropdown-item {
             color: #ffc107; /* Yellow */
         }
+
         .dropdown-item:hover {
             background-color: #333; /* Darker background on hover */
         }
+
         /* Additional styling for better UI */
         .container {
-            padding-top: 20px;
+            padding-top: 10px; /* Adjust based on navbar height */
+            flex: 1; /* Occupy remaining vertical space */
+        }
+
+        /* Footer styling */
+        footer {
+            background-color: #000;
+            color: #fff;
+            padding: 20px 0;
+            width: 100%;
+            flex-shrink: 0; /* Do not allow footer to shrink */
         }
     </style>
 </head>
+
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
-            <a class="navbar-brand" href="#">Building Management</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <a class="navbar-brand" href="{% url 'building-view' %}">Building Management</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
+                <ul class="navbar-nav ml-auto">
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                             Buildings
                         </a>
                         <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <!-- Iterate through buildings to create dropdown items -->
                             {% for building in buildings %}
-                                <a class="dropdown-item" href="{% url 'building-details' building.pk %}">{{ building.building_name }}</a>
+                            <a class="dropdown-item"
+                                href="{% url 'building-details' building.pk %}">{{ building.building_name }}</a>
                             {% endfor %}
                             <!-- Link for creating a new building -->
                             <a class="dropdown-item" href="{% url 'building-reg_view' %}">Create New Building</a>
@@ -65,15 +96,23 @@
             </div>
         </div>
     </nav>
+
     <div class="container mt-4">
         <!-- Content block -->
         {% block content %}
         {% endblock %}
-
     </div>
+
+    <footer>
+        <div class="container text-center">
+            <p>&copy; 2024 Building Management. All Rights Reserved.</p>
+        </div>
+    </footer>
+
     <!-- Bootstrap JS (optional, if you need dropdown functionality) -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
+
 </html>
