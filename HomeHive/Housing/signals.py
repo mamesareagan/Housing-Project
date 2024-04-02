@@ -1,11 +1,16 @@
+"""
+Signal handlers for updating models when certain actions occur.
+"""
+
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.dispatch import receiver
 from Housing.models import Tenant, Building, TotalTenants
 
-
-
 @receiver(post_save, sender=Tenant)
 def update_available_houses_on_tenant_creation_or_update(sender, instance, created, **kwargs):
+    """
+    Signal receiver function to update available_houses on Tenant creation or update.
+    """
     if not created:  # Ignore if it's an update
         return
     
@@ -14,6 +19,9 @@ def update_available_houses_on_tenant_creation_or_update(sender, instance, creat
 
 @receiver(post_delete, sender=Tenant)
 def update_available_houses_on_tenant_deletion(sender, instance, **kwargs):
+    """
+    Signal receiver function to update available_houses on Tenant deletion.
+    """
     instance.building.available_houses += 1
     instance.building.save()
 
